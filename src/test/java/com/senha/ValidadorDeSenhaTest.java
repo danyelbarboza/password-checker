@@ -12,22 +12,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import org.mockito.MockitoAnnotations;
 
+import com.senha.service.ExceptionService;
 import com.senha.service.MapService;
-
 
 public class ValidadorDeSenhaTest {
 
-    private static ValidadorDeSenha validadorDeSenha;
-    private static MapService mapService;
+    @InjectMocks
+    private ValidadorDeSenha validadorDeSenha;
+    @Mock
+    private MapService mapService;
 
     @BeforeEach
     public void setup() {
-        mapService = Mockito.mock(MapService.class);
-        validadorDeSenha = new ValidadorDeSenha(mapService);
+        MockitoAnnotations.openMocks(this);
     }
 
 
@@ -131,5 +135,13 @@ public class ValidadorDeSenhaTest {
         Mockito.when(mapService.eSenhaComum(senha)).thenReturn(true);
         List<String> erros = validadorDeSenha.validar(senha);
         assertTrue(erros.contains("A senha é muito comum, tente outra."));
+    }
+
+    @Test
+    @DisplayName("Deve lançar ExceptionService se o serviço externo falhar")
+    public void deveLancarExcecaoQuandoServicoFalhar() {
+        String senha = "password123";
+        Mockito.when(mapService.eSenhaComum(senha)).thenThrow(new RuntimeException("Erro de comunicação com API"));
+        assertThrows(ExceptionService.class, () -> validadorDeSenha.validar(senha));
     }
 }

@@ -3,6 +3,7 @@ package com.senha;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.senha.service.ExceptionService;
 import com.senha.service.MapService;
 
 public class ValidadorDeSenha {
@@ -35,9 +36,12 @@ public class ValidadorDeSenha {
             }
             if (!contemCaracterEspecial(senha)) {
                 erros.add("Senha deve conter pelo menos um caracter especial");
-            }
-            if (servico.eSenhaComum(senha)) {
-                erros.add("A senha é muito comum, tente outra.");
+            } try {
+                if (servico.eSenhaComum(senha)) {
+                    erros.add("A senha é muito comum, tente outra.");
+                }
+            } catch (Exception e) {
+                throw new ExceptionService("Erro ao verificar senha comum");
             }
             return erros;
         }
