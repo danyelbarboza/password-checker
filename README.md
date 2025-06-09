@@ -2,7 +2,6 @@
 
 Este projeto é um estudo prático de testes unitários com **JUnit 5** para validar um conjunto de regras de segurança de senha em Java.
 
-\<br\>
 
 ## Tecnologias
 
@@ -10,7 +9,6 @@ Este projeto é um estudo prático de testes unitários com **JUnit 5** para val
   * **Maven**
   * **JUnit 5** (`api`, `engine`, `params`)
 
-\<hr\>
 
 ## Foco do Estudo em JUnit 5
 
@@ -22,7 +20,6 @@ A suíte de testes `ValidadorDeSenhaTest` explora as seguintes funcionalidades:
   * **`assertAll`**: Para agrupar múltiplas asserções e garantir que todas sejam verificadas.
   * **`@ParameterizedTest`** e **`@CsvSource`**: Para executar o mesmo teste com diferentes conjuntos de dados, otimizando a verificação de múltiplos cenários.
 
-\<hr\>
 
 ## Como Executar os Testes
 

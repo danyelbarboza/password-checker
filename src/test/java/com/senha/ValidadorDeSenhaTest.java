@@ -6,37 +6,30 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
+import com.senha.service.MapService;
+
 
 public class ValidadorDeSenhaTest {
 
     private static ValidadorDeSenha validadorDeSenha;
-    
+    private static MapService mapService;
 
-    @BeforeAll
-    public static void setup() {
-        validadorDeSenha = new ValidadorDeSenha();
+    @BeforeEach
+    public void setup() {
+        mapService = Mockito.mock(MapService.class);
+        validadorDeSenha = new ValidadorDeSenha(mapService);
     }
 
-    @Test
-    @DisplayName("Validacao de senha com exatamente oito caracteres")
-    public void exatamenteOitoCaracteres() {
-        String senha = "1234D!5a67";
-        List<String> erros = validadorDeSenha.validar(senha);
-        assertTrue(erros.isEmpty());
-    }
-
-    @Test
-    @DisplayName("Validacao de senha com mais de oito caracteres")
-    public void maisDeOitoCaracteres() {
-        String senha = "1234D!5a678";
-        List<String> erros = validadorDeSenha.validar(senha);
-        assertTrue(erros.isEmpty());
-    }
 
     @Test
     @DisplayName("Validacao de senha com menos de oito caracteres")
@@ -51,6 +44,7 @@ public class ValidadorDeSenhaTest {
     public void senhaNula() {
         String senha = null;
         assertThrows(IllegalArgumentException.class, () -> validadorDeSenha.validar(senha));
+        verify(mapService, never()).eSenhaComum(senha);
     }
 
     @Test
@@ -115,5 +109,27 @@ public class ValidadorDeSenhaTest {
     public void validarSenha(String senha, boolean resultadoEsperado) {
         List<String> erros = validadorDeSenha.validar(senha);
         assertEquals(resultadoEsperado, erros.isEmpty());
+    }
+
+    @DisplayName("Validacao de senha valida")
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "1234D!5a67",
+        "1234D!5a678"
+    })
+    public void deveRetornarListaVaziaParaSenhasValidas(String senha) {
+        List<String> erros = validadorDeSenha.validar(senha);
+        assertTrue(erros.isEmpty());
+        verify(mapService).eSenhaComum(senha);
+    }
+
+    // Mockito
+    @Test
+    @DisplayName("Validacao de senha que esta no map")
+    public void deveRejeitarSenhaQueEstaNoMap() {
+        String senha = "password123";
+        Mockito.when(mapService.eSenhaComum(senha)).thenReturn(true);
+        List<String> erros = validadorDeSenha.validar(senha);
+        assertTrue(erros.contains("A senha é muito comum, tente outra."));
     }
 }
